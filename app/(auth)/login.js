@@ -64,7 +64,8 @@ const LoginScreen = ()=>{
                 {/* LOGIN BUTTON */}
 
                 <Button buttonTitle="Login" onPress={()=>{
-                    Alert.alert("Login Successful")
+                    Alert.alert("Login Successful");
+                    router.push('/(home)/home')
                 }} />
 
                 {/* FORGOT PASSWORD */}

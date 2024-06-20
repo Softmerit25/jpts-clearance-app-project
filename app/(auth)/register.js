@@ -1,4 +1,4 @@
-import { View, Text, SafeAreaView, Image, KeyboardAvoidingView, TextInput, Alert, Pressable } from 'react-native';
+import { View, Text, SafeAreaView, Image, KeyboardAvoidingView, TextInput, Alert, Pressable, ScrollView } from 'react-native';
 import Button from '../../components/Button';
 import { useRouter } from 'expo-router';
 
@@ -8,13 +8,14 @@ const RegisterScreen = ()=>{
 
     return(
         <SafeAreaView style={{width:'100%', flex:1, backgroundColor:'white', padding: 20, alignItems:'center'}}>
+            <ScrollView showsVerticalScrollIndicator={false} vertical>
            <KeyboardAvoidingView>
-            <View style={{marginTop: 50, alignItems:'center'}}>
-                <Image style={{ width:180, height:100, resizeMode:'contain'}}
+            <View style={{marginTop: 30, alignItems:'center'}}>
+                <Image style={{ width:180, height:80, resizeMode:'contain'}}
                 source={require("../../assets/images/logo.png")}/>
             </View>
 
-            <View style={{marginTop: 20, alignItems:'center'}}>
+            <View style={{marginTop: 10, alignItems:'center'}}>
             <Text style={{fontSize:25, fontWeight: 600, color:'#c60069'}}>JPTS STUDENT</Text>
             <Text style={{fontSize:25, fontWeight: 600, color:'#c60069'}}>CLEARANCE PORTAL</Text>
             </View>
@@ -42,6 +43,72 @@ const RegisterScreen = ()=>{
                     />
                 </View>
 
+                <View style={{
+                    backgroundColor:'#E5E4E2', 
+                     borderRadius: 5, 
+                     marginTop: 10,
+                }}>
+                    <TextInput 
+                    style={{
+                        paddingHorizontal: 15,
+                        paddingVertical: 10,
+                        width:300,
+                    }}
+                     placeholder='FirstName & Other name'
+                     keyboardType='default'
+                    />
+                </View>
+
+
+                <View style={{
+                    backgroundColor:'#E5E4E2', 
+                     borderRadius: 5, 
+                    marginTop: 10,
+                }}>
+                    <TextInput 
+                    style={{
+                        paddingHorizontal: 15,
+                        paddingVertical: 10,
+                        width:300,
+                    }}
+                     placeholder='Email'
+                     keyboardType='default'
+                    />
+                </View>
+
+
+                <View style={{
+                    backgroundColor:'#E5E4E2', 
+                     borderRadius: 5,
+                     marginTop: 10, 
+                }}>
+                    <TextInput 
+                    style={{
+                        paddingHorizontal: 15,
+                        paddingVertical: 10,
+                        width:300,
+                    }}
+                     placeholder='JPTS portal username'
+                     keyboardType='default'
+                    />
+                </View>
+
+                <View style={{
+                    backgroundColor:'#E5E4E2', 
+                     borderRadius: 5, 
+                     marginTop: 10,
+                }}>
+                    <TextInput 
+                    style={{
+                        paddingHorizontal: 15,
+                        paddingVertical: 10,
+                        width:300,
+                    }}
+                     placeholder='Matric No.'
+                     keyboardType='default'
+                    />
+                </View>
+
                 {/* PASSWORD */}
                 <View style={{
                     backgroundColor:'#E5E4E2', 
@@ -54,7 +121,7 @@ const RegisterScreen = ()=>{
                         paddingVertical: 10,
                         width:300,
                     }}
-                     placeholder='Password'
+                     placeholder='Create Password'
                      secureTextEntry={true}
                      keyboardType="number-pad"
                     />
@@ -63,8 +130,8 @@ const RegisterScreen = ()=>{
 
                 {/* LOGIN BUTTON */}
 
-                <Button buttonTitle="Login" onPress={()=>{
-                    Alert.alert("Login Successful")
+                <Button buttonTitle="Register" onPress={()=>{
+                    Alert.alert("Registration Successful")
                 }} />
 
           
@@ -87,11 +154,12 @@ const RegisterScreen = ()=>{
                         fontWeight: 400,
                         color: "#c60069"
                     }}>
-                            Login
+                        Login
                         </Text>
                     </Pressable>
                 </View>
             </KeyboardAvoidingView>
+            </ScrollView>
         </SafeAreaView>
     )
 }
