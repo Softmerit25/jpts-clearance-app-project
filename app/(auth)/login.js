@@ -1,13 +1,24 @@
-import { View, Text, SafeAreaView, Image, KeyboardAvoidingView, TextInput, Alert, Pressable } from 'react-native';
+import { View, Text, SafeAreaView, Image, KeyboardAvoidingView, TextInput, Alert, Pressable, Dimensions } from 'react-native';
 import Button from '../../components/Button';
 import { useRouter } from 'expo-router';
+import { useState } from 'react';
 
+const width = Dimensions.get('window').width;
 const LoginScreen = ()=>{
 
     const router = useRouter();
+    const [loginInput, setLoginInput] = useState({
+        matricno:'',
+        password:'',
+    })
+
+    const handleLoginInputChange = (name, text)=>{
+        setLoginInput((prevInput)=> ({...prevInput, [name]: text}))
+    }
+
 
     return(
-        <SafeAreaView style={{width:'100%', flex:1, backgroundColor:'white', padding: 20, alignItems:'center'}}>
+        <SafeAreaView style={{width:width, flex:1, backgroundColor:'white', padding: 20,}}>
            <KeyboardAvoidingView>
             <View style={{marginTop: 50, alignItems:'center'}}>
                 <Image style={{ width:180, height:100, resizeMode:'contain'}}
@@ -26,16 +37,18 @@ const LoginScreen = ()=>{
             </View>
 
             
-                <View style={{marginTop:30}}>
+                <View style={{marginTop:30,}}>
                 <View style={{
                     backgroundColor:'#E5E4E2', 
                      borderRadius: 5, 
                 }}>
                     <TextInput 
+                     value={loginInput?.matricno}
+                     onChangeText={(text)=> handleLoginInputChange('matricno', text)}
                     style={{
                         paddingHorizontal: 15,
                         paddingVertical: 10,
-                        width:300,
+                        width:'100%',
                     }}
                      placeholder='Enter Matric No. e.g REG/44101'
                      keyboardType='default'
@@ -49,10 +62,12 @@ const LoginScreen = ()=>{
                      marginTop: 10,
                 }}>
                     <TextInput 
+                    value={loginInput?.password}
+                    onChangeText={(text)=> handleLoginInputChange('password', text)}
                     style={{
                         paddingHorizontal: 15,
                         paddingVertical: 10,
-                        width:300,
+                        width:'100%'
                     }}
                      placeholder='Password'
                      secureTextEntry={true}
@@ -71,7 +86,7 @@ const LoginScreen = ()=>{
                 {/* FORGOT PASSWORD */}
 
                 <Pressable style={{
-                    marginTop: 5,
+                    marginTop: 10,
                     alignItems:'flex-end',
                 }}>
                     <Text style={{

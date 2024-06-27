@@ -1,13 +1,28 @@
-import { View, Text, SafeAreaView, Image, KeyboardAvoidingView, TextInput, Alert, Pressable, ScrollView } from 'react-native';
+import { View, Text, SafeAreaView, Image, KeyboardAvoidingView, TextInput, Alert, Pressable, ScrollView, Dimensions } from 'react-native';
 import Button from '../../components/Button';
 import { useRouter } from 'expo-router';
+import { useState } from 'react';
 
+const width = Dimensions.get('window').width;
 const RegisterScreen = ()=>{
 
     const router = useRouter();
+    const [registerInput, setRegisterInput] = useState({
+        surname:'',
+        othernames:'',
+        email:'',
+        username:'',
+        matricno:'',
+        password:'',
+    })
 
-    return(
-        <SafeAreaView style={{width:'100%', flex:1, backgroundColor:'white', padding: 20, alignItems:'center'}}>
+    const handleRegisterInputChange = (name, text)=>{
+        setRegisterInput((prevInput)=> ({...prevInput, [name]: text}))
+    }
+
+
+return(
+        <SafeAreaView style={{width:width, flex:1, backgroundColor:'white', padding: 20,}}>
             <ScrollView showsVerticalScrollIndicator={false} vertical>
            <KeyboardAvoidingView>
             <View style={{marginTop: 30, alignItems:'center'}}>
@@ -30,13 +45,15 @@ const RegisterScreen = ()=>{
                 <View style={{marginTop:30}}>
                 <View style={{
                     backgroundColor:'#E5E4E2', 
-                     borderRadius: 5, 
+                     borderRadius: 5,
                 }}>
-                    <TextInput 
+                    <TextInput
+                     value={registerInput?.surname}
+                     onChangeText={(text)=> handleRegisterInputChange('surname', text)} 
                     style={{
                         paddingHorizontal: 15,
                         paddingVertical: 10,
-                        width:300,
+                        width: "100%"
                     }}
                      placeholder='Surname'
                      keyboardType='default'
@@ -49,10 +66,12 @@ const RegisterScreen = ()=>{
                      marginTop: 10,
                 }}>
                     <TextInput 
+                    value={registerInput?.othernames}
+                    onChangeText={(text)=> handleRegisterInputChange('othernames', text)} 
                     style={{
                         paddingHorizontal: 15,
                         paddingVertical: 10,
-                        width:300,
+                         width: "100%"
                     }}
                      placeholder='FirstName & Other name'
                      keyboardType='default'
@@ -66,10 +85,12 @@ const RegisterScreen = ()=>{
                     marginTop: 10,
                 }}>
                     <TextInput 
+                    value={registerInput?.email}
+                    onChangeText={(text)=> handleRegisterInputChange('email', text)} 
                     style={{
                         paddingHorizontal: 15,
                         paddingVertical: 10,
-                        width:300,
+                         width: "100%"
                     }}
                      placeholder='Email'
                      keyboardType='default'
@@ -83,10 +104,12 @@ const RegisterScreen = ()=>{
                      marginTop: 10, 
                 }}>
                     <TextInput 
+                    value={registerInput?.username}
+                    onChangeText={(text)=> handleRegisterInputChange('username', text)} 
                     style={{
                         paddingHorizontal: 15,
                         paddingVertical: 10,
-                        width:300,
+                         width: "100%"
                     }}
                      placeholder='JPTS portal username'
                      keyboardType='default'
@@ -99,10 +122,12 @@ const RegisterScreen = ()=>{
                      marginTop: 10,
                 }}>
                     <TextInput 
+                    value={registerInput?.matricno}
+                    onChangeText={(text)=> handleRegisterInputChange('matricno', text)} 
                     style={{
                         paddingHorizontal: 15,
                         paddingVertical: 10,
-                        width:300,
+                         width: "100%"
                     }}
                      placeholder='Matric No.'
                      keyboardType='default'
@@ -115,11 +140,13 @@ const RegisterScreen = ()=>{
                      borderRadius: 5, 
                      marginTop: 10,
                 }}>
-                    <TextInput 
+                    <TextInput
+                    value={registerInput?.password}
+                    onChangeText={(text)=> handleRegisterInputChange('password', text)}  
                     style={{
                         paddingHorizontal: 15,
                         paddingVertical: 10,
-                        width:300,
+                        width: "100%"
                     }}
                      placeholder='Create Password'
                      secureTextEntry={true}

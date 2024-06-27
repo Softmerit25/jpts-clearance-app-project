@@ -1,9 +1,10 @@
 import { View, Text, ScrollView, Dimensions, SafeAreaView, Image, TouchableOpacity } from "react-native";
-import Slider from "../components/Slider";
-import Services from "../components/Services";
+import Slider from "../../components/Slider";
+import Services from "../../components/Services";
+
 
 const {width, height } = Dimensions.get('window');
-const Home = ()=>{
+const Index = ()=>{
     return(
        <SafeAreaView style={{flex: 1, padding:10, backgroundColor:'#fff', width:width, height: height}}>
         <ScrollView  
@@ -31,7 +32,7 @@ const Home = ()=>{
         <TouchableOpacity activeOpacity={0.8}>
         <Image 
             style={{resizeMode:'cover', borderRadius:50, width: 60, height: 60, borderWidth: 2, borderColor:'#ccc'}}
-            source={require('../../assets/images/download.png')} />
+            source={require('../../../assets/images/download.png')} />
         </TouchableOpacity>
         </View>
 
@@ -50,4 +51,4 @@ const Home = ()=>{
     )
 }
 
-export default Home;
+export default Index;

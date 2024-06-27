@@ -1,9 +1,10 @@
-import {View, Image, Text, TouchableOpacity, Dimensions } from 'react-native'
+import { useRouter } from 'expo-router';
+import {View, Image, Text, TouchableOpacity, Dimensions, Alert } from 'react-native'
 
 const { width } = Dimensions.get('window');
 
 const Services = () =>{
-
+    const router = useRouter();
 
     const serviceData = [
         {
@@ -38,6 +39,11 @@ const Services = () =>{
         <View style={{ width: width, flexDirection:'row', gap:20, flexWrap: 'wrap' }}>
           {serviceData && serviceData.map((item, index)=>(
             <TouchableOpacity key={index} 
+            onPress={()=> {
+                index === 0 ? router.push('/(home)/home/clearance')
+                : index === 2 ? router.push('/(home)/home/certificate') :
+                index === 3 ? Alert.alert("Comming Soon!"): null;
+            }} 
             activeOpacity={0.8} style={{
                 backgroundColor: `${item?.bgColor}`,
                 padding: 15,
