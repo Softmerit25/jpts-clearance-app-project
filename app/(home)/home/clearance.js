@@ -110,16 +110,6 @@ function validateForm(){
         return false;
     }
 
-
-    if(inputValues?.course.trim() === ""){
-        Alert.alert("Input Error", "Course is required");
-        return false;
-    }
-    if(inputValues?.centre.trim() === ""){
-        Alert.alert("Input Error", "Study Centre is required");
-        return false;
-    }
-
     if(inputValues?.session.trim() === ""){
         Alert.alert("Input Error", "Session is required");
         return false;
