@@ -7,13 +7,24 @@ import SelectCourses from '../../components/select-courses';
 import { useState } from 'react';
 
 import * as DocumentPicker from 'expo-document-picker';
+import { useSendClearanceData } from '../../../hooks/useSendClearanceData';
+import { handleFileUploads } from '../../../hooks/handleFileUpload';
+import { useAuthContext } from '../../../context';
 
 const width = Dimensions.get('window').width;
 const Clearance = ()=>{
+    const {user, setUser } = useAuthContext();
+
+    const {isclearanceLoading, clearanceMutation }= useSendClearanceData();
 
     const router = useRouter();
+
+    const [uploadOne, setUploadOne] = useState(null);
+    const [uploadTwo, setUploadTwo] = useState(null); 
+    const [uploadThree, setUploadThree] = useState(null);
+    const [uploadFour, setUploadFour] = useState(null);
+
     const [openCourses, setOpenCourses] = useState(false);
-    const [file, setFile] = useState([]);
     const [ program, setProgram] = useState('');
     const [inputValues, setInputValues] = useState({
         course:'',
@@ -22,6 +33,7 @@ const Clearance = ()=>{
         phone:'',
         country:'',
         state:'',
+        qualification: '',
       });
     
       const handleInputChange = (name, text) => {
@@ -30,24 +42,161 @@ const Clearance = ()=>{
 
 
     // HANDLE DOCUMENT UPLOAD
-    const handleDocUpload = async ()=>{
+    const handleUploadOne = async ()=>{
         try {
            const docFile = await DocumentPicker.getDocumentAsync({
                 type:'*/*',
             });
             //console.log('document', docFile)
             const result = docFile?.assets?.[0];
-            setFile((prev)=> [...prev, result]);
+            setUploadOne(result);
         } catch (error) {
             console.log(`Error selecting file for upload: ${error}`)
             throw new Error(error);
         }
     }
 
+
+    const handleUploadTwo = async ()=>{
+        try {
+           const docFile = await DocumentPicker.getDocumentAsync({
+                type:'*/*',
+            });
+            //console.log('document', docFile)
+            const result = docFile?.assets?.[0];
+            setUploadTwo(result);
+        } catch (error) {
+            console.log(`Error selecting file for upload: ${error}`)
+            throw new Error(error);
+        }
+    }
+
+
+
+    const handleUploadThree = async ()=>{
+        try {
+           const docFile = await DocumentPicker.getDocumentAsync({
+                type:'*/*',
+            });
+            //console.log('document', docFile)
+            const result = docFile?.assets?.[0];
+            setUploadThree(result);
+        } catch (error) {
+            console.log(`Error selecting file for upload: ${error}`)
+            throw new Error(error);
+        }
+    }
+
+
+    const handleUploadFour = async ()=>{
+        try {
+           const docFile = await DocumentPicker.getDocumentAsync({
+                type:'*/*',
+            });
+            //console.log('document', docFile)
+            const result = docFile?.assets?.[0];
+            setUploadFour(result);
+        } catch (error) {
+            console.log(`Error selecting file for upload: ${error}`)
+            throw new Error(error);
+        }
+    }
+
+
+// validate form
+function validateForm(){
+    if(!program){
+        Alert.alert("Input Error", "Programme is required");
+        return false;
+    }
+
+
+    if(inputValues?.course.trim() === ""){
+        Alert.alert("Input Error", "Course is required");
+        return false;
+    }
+    if(inputValues?.centre.trim() === ""){
+        Alert.alert("Input Error", "Study Centre is required");
+        return false;
+    }
+
+    if(inputValues?.session.trim() === ""){
+        Alert.alert("Input Error", "Session is required");
+        return false;
+    }
+
+    return true;
+}
+
+//  HANDLE CLEARANCE FORM SUBMIT
+const handleSubmitClearance = async () =>{
+
+    const validate = validateForm();
+    if(!validate) return;
+
+    const data = {
+        programme: program,
+        course_of_study: inputValues?.course,
+        study_centre: inputValues?.centre,
+        session: inputValues?.session,
+        phone: inputValues?.phone,
+        country: inputValues?.country,
+        state: inputValues?.state,
+        qualification: inputValues?.qualification,
+    }
+
+
+    //HANDLE DOCUMENTS UPLOAD
+    if(uploadOne){
+        const link = await handleFileUploads(uploadOne);
+        data.yearOneDocumentUpload = link;
+    }
+
+    if(uploadTwo){
+        const link = await handleFileUploads(uploadTwo);
+        data.yearTwoDocumentUpload = link;
+    }
+
+    if(uploadThree){
+        const link = await handleFileUploads(uploadThree);
+        data.yearThreeDocumentUpload = link;
+    }
+
+    if(uploadFour){
+        const link = await handleFileUploads(uploadFour);
+        data.yearFourDocumentUpload = link;
+    }
+   
+
+    const payload = await clearanceMutation(data);
+    if(payload) {
+            setUser(payload);
+            setUploadOne(null);
+            setUploadTwo(null); 
+            setUploadThree(null);
+            setUploadFour(null);
+            setProgram('');
+            setInputValues({
+                course:'',
+                centre:'',
+                session:'',
+                phone:'',
+                country:'',
+                state:'',
+                qualification: '',
+            });
+
+        Alert.alert("Clearance Data Sent", 
+            "Your information has being sent for processing. However, you still have changes of updating until its approved!")
+        }
+    router.push('/(home)/home');
+}
+
     return(
         <SafeAreaView style={{width:width, flex:1, backgroundColor:'white', padding: 20,}}>
             <ScrollView showsVerticalScrollIndicator={false} vertical>
 
+            <View style={{marginTop:50}}>
             <Pressable onPress={()=> router.back()}>
             <Ionicons name="chevron-back-circle-outline" size={32} color='#c60069' />
             </Pressable>
@@ -100,6 +249,8 @@ const Clearance = ()=>{
                      marginTop: 10,
                 }}>
                     <TextInput
+                    editable={user?.course_of_study ? false : true}
+                    selectTextOnFocus={user?.course_of_study ? false : true}
                     value={inputValues?.course}
                     onChangeText={(text)=>handleInputChange('course', text)} 
                     style={{
@@ -107,7 +258,8 @@ const Clearance = ()=>{
                         paddingVertical: 10,
                         width:"100%",
                     }}
-                     placeholder='Course of Study'
+                    placeholderTextColor={user?.course_of_study ? "#000" : ""}
+                     placeholder={user?.course_of_study ? user?.course_of_study : 'Course of Study'}
                      keyboardType='default'
                     />
                 </View>
@@ -119,6 +271,8 @@ const Clearance = ()=>{
                     marginTop: 10,
                 }}>
                     <TextInput
+                    editable={user?.study_centre ? false: true}
+                    selectTextOnFocus={user?.study_centre ? false : true}
                      value={inputValues?.centre}
                      onChangeText={(text)=> handleInputChange('centre', text)}
                     style={{
@@ -126,7 +280,8 @@ const Clearance = ()=>{
                         paddingVertical: 10,
                         width:"100%",
                     }}
-                     placeholder='Study Centre'
+                     placeholder={user?.study_centre ? user?.study_centre : 'Study Centre'}
+                     placeholderTextColor={user?.study_centre ? "#000" : ""}
                      keyboardType='default'
                     />
                 </View>
@@ -175,6 +330,8 @@ const Clearance = ()=>{
                      marginTop: 10,
                 }}>
                     <TextInput
+                    editable={user?.country ? false: true}
+                    selectTextOnFocus={user?.country ? false : true}
                     value={inputValues?.country}
                     onChangeText={(text)=>handleInputChange('country', text)} 
                     style={{
@@ -182,7 +339,8 @@ const Clearance = ()=>{
                         paddingVertical: 10,
                         width:"100%",
                     }}
-                     placeholder='Country'
+                     placeholder={user?.country ? user?.country : 'Country'}
+                     placeholderTextColor={user?.country ? "#000" : ""}
                      keyboardType="default"
                     />
                 </View>
@@ -194,6 +352,8 @@ const Clearance = ()=>{
                      marginTop: 10,
                 }}>
                     <TextInput
+                    editable={user?.state ? false: true}
+                    selectTextOnFocus={user?.state ? false : true}
                     value={inputValues?.state}
                     onChangeText={(text)=>handleInputChange('state', text)} 
                     style={{
@@ -201,7 +361,28 @@ const Clearance = ()=>{
                         paddingVertical: 10,
                         width:"100%",
                     }}
-                     placeholder='State/City'
+                     placeholder={user?.state ? user?.state : 'State/City'}
+                     placeholderTextColor={user?.state ? "#000" : ""}
+                     keyboardType="default"
+                    />
+                </View>
+
+
+                {/* HIGHEST QUALIFICATION */}
+                <View style={{
+                    backgroundColor:'#E5E4E2', 
+                     borderRadius: 5, 
+                     marginTop: 10,
+                }}>
+                    <TextInput
+                    value={inputValues?.qualification}
+                    onChangeText={(text)=>handleInputChange('qualification', text)} 
+                    style={{
+                        paddingHorizontal: 15,
+                        paddingVertical: 10,
+                        width:"100%",
+                    }}
+                     placeholder='Enter Higest Qualification'
                      keyboardType="default"
                     />
                 </View>
@@ -218,7 +399,7 @@ const Clearance = ()=>{
                 gap: 10,
             }}>
             <Pressable 
-            onPress={handleDocUpload}
+            onPress={handleUploadOne}
             style={{
                 backgroundColor:'#E5E4E2', 
                 borderRadius: 4,
@@ -229,12 +410,12 @@ const Clearance = ()=>{
                 
                 <View style={{flexDirection:'row', gap:10, alignItems:'center',justifyContent:'space-between'}}>
                 <Text style={{color:'#c60069', fontSize: 10,}}>Tap to upload.</Text>
-                {file?.length > 0 && <Text style={{color:'#c60069', fontSize: 10,}}>Uploaded File: {file?.[0]?.name} </Text>}
+                {uploadOne && <Text style={{color:'#c60069', fontSize: 10,}}>Uploaded File: {uploadOne?.name} </Text>}
                 </View>
             </Pressable>
 
             <Pressable 
-            onPress={handleDocUpload}
+            onPress={handleUploadTwo}
             style={{
                 backgroundColor:'#E5E4E2', 
                 borderRadius: 4,
@@ -245,12 +426,12 @@ const Clearance = ()=>{
                 
                 <View style={{flexDirection:'row', gap:10, alignItems:'center',justifyContent:'space-between'}}>
                 <Text style={{color:'#c60069', fontSize: 10,}}>Tap to upload.</Text>
-                {file?.length > 0 && <Text style={{color:'#c60069', fontSize: 10,}}>Uploaded File: {file?.[1]?.name} </Text>}
+                {uploadTwo && <Text style={{color:'#c60069', fontSize: 10,}}>Uploaded File: {uploadTwo?.name} </Text>}
                 </View>
             </Pressable>
 
             <Pressable 
-            onPress={handleDocUpload}
+            onPress={handleUploadThree}
             style={{
                 backgroundColor:'#E5E4E2', 
                 borderRadius: 4,
@@ -261,13 +442,13 @@ const Clearance = ()=>{
 
                 <View style={{flexDirection:'row', gap:10, alignItems:'center',justifyContent:'space-between'}}>
                 <Text style={{color:'#c60069', fontSize: 10,}}>Tap to upload.</Text>
-                {file?.length > 0 && <Text style={{color:'#c60069', fontSize: 10,}}>Uploaded File: {file?.[2]?.name} </Text>}
+                {uploadThree && <Text style={{color:'#c60069', fontSize: 10,}}>Uploaded File: {uploadThree?.name} </Text>}
                 </View>
 
             </Pressable>
 
             <Pressable 
-            onPress={handleDocUpload}
+            onPress={handleUploadFour}
             style={{
                 backgroundColor:'#E5E4E2', 
                 borderRadius: 4,
@@ -278,7 +459,7 @@ const Clearance = ()=>{
                 
                 <View style={{flexDirection:'row', gap:10, alignItems:'center',justifyContent:'space-between'}}>
                 <Text style={{color:'#c60069', fontSize: 10,}}>Tap to upload.</Text>
-                {file?.length > 0 && <Text style={{color:'#c60069', fontSize: 10,}}>Uploaded File: {file?.[3]?.name} </Text>}
+                {uploadFour && <Text style={{color:'#c60069', fontSize: 10,}}>Uploaded File: {uploadFour?.name} </Text>}
                 </View>
 
             </Pressable>
@@ -289,14 +470,14 @@ const Clearance = ()=>{
 
                 {/* SUBMIT BUTTON */}
 
-                <Button buttonTitle="Submit for Review" onPress={()=>{
-                    Alert.alert("Registration Successful")
-                }} />
+                <Button buttonTitle={isclearanceLoading ? "Processing..." : user?.course_of_study ? "UPDATE INFORMATION" : "Submit for Review"} 
+                onPress={handleSubmitClearance} />
 
           
 
             
             </KeyboardAvoidingView>
+            </View>
             </ScrollView>
         </SafeAreaView>
     )

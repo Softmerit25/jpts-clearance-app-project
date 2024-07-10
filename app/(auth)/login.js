@@ -1,12 +1,19 @@
 import { View, Text, SafeAreaView, Image, KeyboardAvoidingView, TextInput, Alert, Pressable, Dimensions } from 'react-native';
 import Button from '../../components/Button';
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
-
+import { useEffect, useState } from 'react';
+import { useLogin } from '../../hooks/useLogin';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getUserInfo } from '../../hooks/getUserInfo';
+import { useAuthContext } from '../../context';
 const width = Dimensions.get('window').width;
-const LoginScreen = ()=>{
 
+
+const LoginScreen = ()=>{
+    const { isLoginLoading, LoginMutation } = useLogin();
     const router = useRouter();
+   const { setUser } = useAuthContext()
+
     const [loginInput, setLoginInput] = useState({
         matricno:'',
         password:'',
@@ -16,8 +23,69 @@ const LoginScreen = ()=>{
         setLoginInput((prevInput)=> ({...prevInput, [name]: text}))
     }
 
+    
 
-    return(
+    // CHECK USER LOG IN STATE
+    useEffect(()=>{
+        const checkLoginStatus = async() =>{
+           try {
+            const token = await AsyncStorage.getItem('xt');
+            if(token){
+            const result = await getUserInfo(token);
+            setUser(result);
+            setTimeout(()=>{
+                router.replace('/(home)/home');
+            }, 5);
+
+            }
+
+           } catch (error) {
+             Alert.alert("Error", error.message);
+           }
+        }
+
+     checkLoginStatus();
+    },[])
+
+
+
+
+// validate login input
+function validateLoginInput(){
+    if(loginInput?.matricno.trim() === ""){
+        Alert.alert("Input Error", "Matricno is required!");
+        return false;
+    }
+
+    if(loginInput?.password.trim() === ""){
+        Alert.alert("Input Error", "Password is required!");
+        return false;
+    }
+
+    return true;
+}
+// HANDLE LOGIN FUNCTION
+const handleLogin = async()=>{
+        const validate = validateLoginInput();
+        if(!validate) return;
+        
+      const payload = await LoginMutation(loginInput);
+
+      if(payload){
+        setUser(payload?.data);
+        await AsyncStorage.setItem('xt', payload?.xt);
+        router.replace('/(home)/home');
+        Alert.alert("Success", "Login Successful!");
+        setLoginInput({
+            matricno:'',
+            password:'',
+        })
+ 
+      }
+    }
+
+
+return(
         <SafeAreaView style={{width:width, flex:1, backgroundColor:'white', padding: 20,}}>
            <KeyboardAvoidingView>
             <View style={{marginTop: 50, alignItems:'center'}}>
@@ -78,10 +146,7 @@ const LoginScreen = ()=>{
 
                 {/* LOGIN BUTTON */}
 
-                <Button buttonTitle="Login" onPress={()=>{
-                    Alert.alert("Login Successful");
-                    router.push('/(home)/home')
-                }} />
+                <Button buttonTitle={isLoginLoading ? "Processing..." : "Login"} onPress={handleLogin} />
 
                 {/* FORGOT PASSWORD */}
 

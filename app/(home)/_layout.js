@@ -16,7 +16,8 @@ export default function Layout(){
                 borderTopWidth: 0,
                 elevation: 0,
                 shadowOpacity: 0,
-            }
+            },
+            tabBarHideOnKeyboard: true,
         }}>
         <Tabs.Screen name="home" options={{
             tabBarLabel: ()=> null,

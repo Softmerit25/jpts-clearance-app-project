@@ -1,0 +1,1 @@
+export const baseURL = `https://jpts-clearance-app-backend.onrender.com/api/v1/`;

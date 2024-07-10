@@ -2,11 +2,14 @@ import { View, Text, SafeAreaView, Image, KeyboardAvoidingView, TextInput, Alert
 import Button from '../../components/Button';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
+import { useRegister } from '../../hooks/useRegister';
 
 const width = Dimensions.get('window').width;
+
 const RegisterScreen = ()=>{
 
     const router = useRouter();
+
     const [registerInput, setRegisterInput] = useState({
         surname:'',
         othernames:'',
@@ -19,6 +22,63 @@ const RegisterScreen = ()=>{
     const handleRegisterInputChange = (name, text)=>{
         setRegisterInput((prevInput)=> ({...prevInput, [name]: text}))
     }
+
+const {Register, isRegisterLoading } = useRegister();
+
+
+
+// validate register inputs
+function validateRegisterInput(){
+    if(registerInput?.surname.trim()=== ""){
+        Alert.alert("Input Error", "Surname is required!");
+        return false;
+    }
+    if(registerInput?.othernames.trim() === ""){
+        Alert.alert("Input Error", "Othernames is required!");
+        return false;
+    }
+
+    if(registerInput?.email.trim() === ""){
+        Alert.alert("Input Error", "Email is required!");
+        return false;
+    }
+    if(registerInput?.username.trim() === ""){
+        Alert.alert("Input Error", "Jpts portal username is required!");
+        return false;
+    }
+    if(registerInput?.matricno.trim() === ""){
+        Alert.alert("Input Error", "Matricno is required!");
+        return false;
+    }
+    if(registerInput?.password.trim() === ""){
+        Alert.alert("Input Error", "Password is required!");
+        return false;
+    }
+
+    return true;
+}
+
+
+const handleRegister = async () =>{
+
+    const validate = validateRegisterInput();
+    if(!validate) return;
+
+   const res = await Register(registerInput);
+   if(res){
+    Alert.alert("Success", res.message);
+
+    router.push('/(auth)/login');
+    setRegisterInput({
+        surname:'',
+        othernames:'',
+        email:'',
+        username:'',
+        matricno:'',
+        password:'',
+    })
+   }
+}
 
 
 return(
@@ -129,7 +189,7 @@ return(
                         paddingVertical: 10,
                          width: "100%"
                     }}
-                     placeholder='Matric No.'
+                     placeholder='Matric No. eg. Reg/44xxx'
                      keyboardType='default'
                     />
                 </View>
@@ -157,9 +217,7 @@ return(
 
                 {/* LOGIN BUTTON */}
 
-                <Button buttonTitle="Register" onPress={()=>{
-                    Alert.alert("Registration Successful")
-                }} />
+                <Button buttonTitle={isRegisterLoading ? "Processing..." : "Register"} onPress={handleRegister} />
 
           
 

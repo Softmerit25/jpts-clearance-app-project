@@ -20,7 +20,8 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.softmerit.jptsclearance"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -33,6 +34,14 @@
           "iCloudContainerEnvironment": "Production"
         }
       ]
-    ]
+    ],
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "d066b819-c8fc-48c2-a099-f7881665d119"
+      }
+    }
   }
 }

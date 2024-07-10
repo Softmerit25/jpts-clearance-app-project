@@ -1,9 +1,11 @@
 import { useRouter } from 'expo-router';
 import {View, Image, Text, TouchableOpacity, Dimensions, Alert } from 'react-native'
+import { useAuthContext } from '../../context';
 
 const { width } = Dimensions.get('window');
 
 const Services = () =>{
+    const { user } = useAuthContext();
     const router = useRouter();
 
     const serviceData = [
@@ -41,8 +43,26 @@ const Services = () =>{
             <TouchableOpacity key={index} 
             onPress={()=> {
                 index === 0 ? router.push('/(home)/home/clearance')
-                : index === 2 ? router.push('/(home)/home/certificate') :
-                index === 3 ? Alert.alert("Comming Soon!"): null;
+                : index === 1 ? (
+                    user?.clearanceStatus === "approved" ? 
+                    Alert.alert("Clearance Status", "Contragulations!. Your Clearance has being approved. Kindly click okay to download your clearance certificate.", 
+                        [
+                            {
+                                text: 'Okay',
+                                onPress: ()=> router.push('/(home)/home/certificate')
+                            },
+                            {
+                                text: 'Cancel',
+                                onPress: () => console.log('Cancel Pressed'),
+                                style: 'cancel'
+                            },
+                        ]) :
+                    Alert.alert("Clearance Status", "Your Clearance Status is Pending and in process...Keep checking.")
+                ) : index === 2 ? (
+                    user?.clearanceStatus === "approved" ? router.push('/(home)/home/certificate') : 
+                    Alert.alert("Print Clearance", "Your Clearance Status is Pending and in process...Keep checking.")
+                ) :
+                index === 3 ? Alert.alert("Coming Soon!"): null;
             }} 
             activeOpacity={0.8} style={{
                 backgroundColor: `${item?.bgColor}`,
