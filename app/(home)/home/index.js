@@ -13,6 +13,7 @@ const Index = ()=>{
 
    const { user } = useAuthContext();
 
+   if(!user) return;
 
     const router = useRouter();
 
@@ -22,34 +23,36 @@ const Index = ()=>{
         vertical
         showsVerticalScrollIndicator={false}>
         
-        <View style={{flexDirection:'row', marginTop:50,  alignItems:'center', justifyContent:'space-between'}}>
-        <View>
-            <Text style={{fontSize:18, fontWeight:'500'}}>Hi, {user?.surname}  {user?.othernames}</Text>
-            <Text style={{fontSize: 14, fontWeight:'300'}}>
-              <Text style={{fontSize: 14, fontWeight:'bold'}}>
-              MATRIC NO:
-              </Text>
-               {user?.matricno}
+        {user ? (
+            <View style={{flexDirection:'row', marginTop:50,  alignItems:'center', justifyContent:'space-between'}}>
+            <View>
+                <Text style={{fontSize:18, fontWeight:'500'}}>Hi, {user?.surname}  {user?.othernames}</Text>
+                <Text style={{fontSize: 14, fontWeight:'300'}}>
+                  <Text style={{fontSize: 14, fontWeight:'bold'}}>
+                  MATRIC NO:
+                  </Text>
+                   {user?.matricno}
+                </Text>
+                <Text style={{fontSize: 14, fontWeight:'300'}}>
+                {user?.course_of_study ? <Text style={{fontSize: 14, fontWeight:'bold'}}>
+                Course: {user?.course_of_study.substring(0, 20) +"..."}
+                </Text>  : " "}
             </Text>
-            <Text style={{fontSize: 14, fontWeight:'300'}}>
-            <Text style={{fontSize: 14, fontWeight:'bold'}}>
-            Course:
-            </Text> {user?.course_of_study.substring(0, 20) +"..."}
-        </Text>
-        </View>
+            </View>
+    
+    
+           
+            <TouchableOpacity activeOpacity={0.8} onPress={()=>{
+                router.push('/(home)/settings')
+            }}>
+            <Image 
+                style={{resizeMode:'cover', borderRadius:50, width: 60, height: 60, borderWidth: 2, borderColor:'#ccc'}}
+                source={{uri: user?.profilePic}} />
+            </TouchableOpacity>
+            </View>
+        ): null}
 
-
-       
-        <TouchableOpacity activeOpacity={0.8} onPress={()=>{
-            router.push('/(home)/settings')
-        }}>
-        <Image 
-            style={{resizeMode:'cover', borderRadius:50, width: 60, height: 60, borderWidth: 2, borderColor:'#ccc'}}
-            source={{uri: user?.profilePic}} />
-        </TouchableOpacity>
-        </View>
-
-        <View style={{marginTop: 5,}}>
+        <View style={{marginTop: user ? 5 : 50,}}>
             <Slider />
         </View>
 

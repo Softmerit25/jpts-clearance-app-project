@@ -14,6 +14,7 @@ const Button = ({buttonTitle, onPress}) =>{
                 paddingHorizontal: 10,
                 alignItems:'center',
                 marginTop: 30,
+                marginBottom: 5,
                 alignSelf:'center',
                 justifyContent:'center',
                 alignItems:'center',

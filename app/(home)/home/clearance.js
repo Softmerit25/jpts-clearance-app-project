@@ -4,18 +4,21 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { FontAwesome } from '@expo/vector-icons';
 import SelectCourses from '../../components/select-courses';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import * as DocumentPicker from 'expo-document-picker';
 import { useSendClearanceData } from '../../../hooks/useSendClearanceData';
-import { handleFileUploads } from '../../../hooks/handleFileUpload';
 import { useAuthContext } from '../../../context';
+import useFileUploader from '../../../hooks/useFileUploader';
 
 const width = Dimensions.get('window').width;
-const Clearance = ()=>{
-    const {user, setUser } = useAuthContext();
 
+const Clearance = ()=>{
+    
+    const { user, setUser } = useAuthContext();
     const {isclearanceLoading, clearanceMutation }= useSendClearanceData();
+
+    const {isLoadingFile, handleFileUpload} = useFileUploader();
 
     const router = useRouter();
 
@@ -31,15 +34,38 @@ const Clearance = ()=>{
         centre:'',
         session:'',
         phone:'',
+        gender: '',
         country:'',
         state:'',
         qualification: '',
       });
     
+
+
+      useEffect(()=>{
+       function checkUserProgrammeStatus(){
+            if(user){
+                setProgram(user?.programme || "");
+                setInputValues({
+                    course:user?.course_of_study || "",
+                    centre:user?.study_centre || "",
+                    session:user?.session || "",
+                    phone: user?.phone || "",
+                    gender: user?.gender || "",
+                    country: user?.country || "",
+                    state: user?.state || "",
+                    qualification: user?.qualification || "",
+            });
+        }
+       }
+
+        checkUserProgrammeStatus();
+      }, []);
+
+
       const handleInputChange = (name, text) => {
         setInputValues((prevValues) => ({ ...prevValues, [name]: text }));
       };
-
 
     // HANDLE DOCUMENT UPLOAD
     const handleUploadOne = async ()=>{
@@ -47,9 +73,21 @@ const Clearance = ()=>{
            const docFile = await DocumentPicker.getDocumentAsync({
                 type:'*/*',
             });
-            //console.log('document', docFile)
+
             const result = docFile?.assets?.[0];
-            setUploadOne(result);
+            if (!result.cancelled) {
+              const formData = new FormData();
+                const fileDetails = {
+                    name: result?.name,
+                    uri: result?.uri,
+                    type: result?.mimeType,
+                    size: result?.size,
+                };
+
+                formData.append('file', fileDetails);
+              const fileLink = await handleFileUpload(formData);
+              setUploadOne(fileLink);
+            }
         } catch (error) {
             console.log(`Error selecting file for upload: ${error}`)
             throw new Error(error);
@@ -59,48 +97,86 @@ const Clearance = ()=>{
 
     const handleUploadTwo = async ()=>{
         try {
-           const docFile = await DocumentPicker.getDocumentAsync({
-                type:'*/*',
-            });
-            //console.log('document', docFile)
-            const result = docFile?.assets?.[0];
-            setUploadTwo(result);
-        } catch (error) {
-            console.log(`Error selecting file for upload: ${error}`)
-            throw new Error(error);
-        }
-    }
+            const docFile = await DocumentPicker.getDocumentAsync({
+                 type:'*/*',
+             });
+ 
+             const result = docFile?.assets?.[0];
+             if (!result.cancelled) {
+               const formData = new FormData();
+                 const fileDetails = {
+                     name: result?.name,
+                     uri: result?.uri,
+                     type: result?.mimeType,
+                     size: result?.size,
+                 };
+ 
+                 formData.append('file', fileDetails);
+               const fileLink = await handleFileUpload(formData);
+               setUploadTwo(fileLink);
+             }
+         } catch (error) {
+             console.log(`Error selecting file for upload: ${error}`)
+             throw new Error(error);
+         }
+     }
 
 
 
     const handleUploadThree = async ()=>{
         try {
-           const docFile = await DocumentPicker.getDocumentAsync({
-                type:'*/*',
-            });
-            //console.log('document', docFile)
-            const result = docFile?.assets?.[0];
-            setUploadThree(result);
-        } catch (error) {
-            console.log(`Error selecting file for upload: ${error}`)
-            throw new Error(error);
-        }
-    }
+            const docFile = await DocumentPicker.getDocumentAsync({
+                 type:'*/*',
+             });
+ 
+             const result = docFile?.assets?.[0];
+             if (!result) return
+
+               const formData = new FormData();
+                 const fileDetails = {
+                     name: result?.name,
+                     uri: result?.uri,
+                     type: result?.mimeType,
+                     size: result?.size,
+                 };
+ 
+                 formData.append('file', fileDetails);
+               const fileLink = await handleFileUpload(formData);
+               setUploadThree(fileLink);
+            
+         } catch (error) {
+             console.log(`Error selecting file for upload: ${error}`)
+             throw new Error(error);
+         }
+     }
 
 
     const handleUploadFour = async ()=>{
         try {
-           const docFile = await DocumentPicker.getDocumentAsync({
-                type:'*/*',
-            });
-            //console.log('document', docFile)
-            const result = docFile?.assets?.[0];
-            setUploadFour(result);
-        } catch (error) {
-            console.log(`Error selecting file for upload: ${error}`)
-            throw new Error(error);
-        }
-    }
+            const docFile = await DocumentPicker.getDocumentAsync({
+                 type:'*/*',
+             });
+ 
+             const result = docFile?.assets?.[0];
+             if (!result.cancelled) {
+               const formData = new FormData();
+                 const fileDetails = {
+                     name: result?.name,
+                     uri: result?.uri,
+                     type: result?.mimeType,
+                     size: result?.size,
+                 };
+ 
+                 formData.append('file', fileDetails);
+               const fileLink = await handleFileUpload(formData);
+               setUploadFour(fileLink);
+             }
+         } catch (error) {
+             console.log(`Error selecting file for upload: ${error}`)
+             throw new Error(error);
+         }
+     }
+
 
 
 // validate form
@@ -110,10 +186,6 @@ function validateForm(){
         return false;
     }
 
-    if(inputValues?.session.trim() === ""){
-        Alert.alert("Input Error", "Session is required");
-        return false;
-    }
 
     return true;
 }
@@ -130,6 +202,7 @@ const handleSubmitClearance = async () =>{
         study_centre: inputValues?.centre,
         session: inputValues?.session,
         phone: inputValues?.phone,
+        gender: inputValues?.gender,
         country: inputValues?.country,
         state: inputValues?.state,
         qualification: inputValues?.qualification,
@@ -138,27 +211,26 @@ const handleSubmitClearance = async () =>{
 
     //HANDLE DOCUMENTS UPLOAD
     if(uploadOne){
-        const link = await handleFileUploads(uploadOne);
-        data.yearOneDocumentUpload = link;
+        data.yearOneDocumentUpload = uploadOne;
     }
+
 
     if(uploadTwo){
-        const link = await handleFileUploads(uploadTwo);
-        data.yearTwoDocumentUpload = link;
+        data.yearTwoDocumentUpload = uploadTwo;
     }
 
+    
     if(uploadThree){
-        const link = await handleFileUploads(uploadThree);
-        data.yearThreeDocumentUpload = link;
+        data.yearThreeDocumentUpload = uploadThree;
     }
 
     if(uploadFour){
-        const link = await handleFileUploads(uploadFour);
-        data.yearFourDocumentUpload = link;
+        data.yearFourDocumentUpload = uploadFour;
     }
+    
    
-
     const payload = await clearanceMutation(data);
+
     if(payload) {
             setUser(payload);
             setUploadOne(null);
@@ -171,6 +243,7 @@ const handleSubmitClearance = async () =>{
                 centre:'',
                 session:'',
                 phone:'',
+                gender:'',
                 country:'',
                 state:'',
                 qualification: '',
@@ -179,6 +252,7 @@ const handleSubmitClearance = async () =>{
         Alert.alert("Clearance Data Sent", 
             "Your information has being sent for processing. However, you still have changes of updating until its approved!")
         }
+
     router.push('/(home)/home');
 }
 
@@ -239,8 +313,8 @@ const handleSubmitClearance = async () =>{
                      marginTop: 10,
                 }}>
                     <TextInput
-                    editable={user?.course_of_study ? false : true}
-                    selectTextOnFocus={user?.course_of_study ? false : true}
+                    editable={user?.editable === true ? true : false}
+                    selectTextOnFocus={user?.editable === true ? true : false}
                     value={inputValues?.course}
                     onChangeText={(text)=>handleInputChange('course', text)} 
                     style={{
@@ -248,7 +322,7 @@ const handleSubmitClearance = async () =>{
                         paddingVertical: 10,
                         width:"100%",
                     }}
-                    placeholderTextColor={user?.course_of_study ? "#000" : ""}
+                    placeholderTextColor={user?.editable === true ? "#000" : ""}
                      placeholder={user?.course_of_study ? user?.course_of_study : 'Course of Study'}
                      keyboardType='default'
                     />
@@ -261,8 +335,8 @@ const handleSubmitClearance = async () =>{
                     marginTop: 10,
                 }}>
                     <TextInput
-                    editable={user?.study_centre ? false: true}
-                    selectTextOnFocus={user?.study_centre ? false : true}
+                    editable={user?.editable === true ? true: false}
+                    selectTextOnFocus={user?.editable === true ? true : false}
                      value={inputValues?.centre}
                      onChangeText={(text)=> handleInputChange('centre', text)}
                     style={{
@@ -271,7 +345,7 @@ const handleSubmitClearance = async () =>{
                         width:"100%",
                     }}
                      placeholder={user?.study_centre ? user?.study_centre : 'Study Centre'}
-                     placeholderTextColor={user?.study_centre ? "#000" : ""}
+                     placeholderTextColor={user?.editable === true ? "#000" : ""}
                      keyboardType='default'
                     />
                 </View>
@@ -283,6 +357,8 @@ const handleSubmitClearance = async () =>{
                      marginTop: 10, 
                 }}>
                     <TextInput 
+                    editable={user?.editable === true ? true: false}
+                    selectTextOnFocus={user?.editable === true ? true : false}
                     value={inputValues?.session}
                     onChangeText={(text)=> handleInputChange('session', text)}
                     style={{
@@ -290,7 +366,8 @@ const handleSubmitClearance = async () =>{
                         paddingVertical: 10,
                         width:"100%",
                     }}
-                     placeholder='Enter Session eg. 2023/2024'
+                    placeholderTextColor={user?.editable === true ? "#000" : ""}
+                     placeholder={user?.session ? user?.session : 'Enter Session: Start Year & Exp.End Year eg. 2020-2024'}
                      keyboardType='default'
                     />
                 </View>
@@ -301,6 +378,8 @@ const handleSubmitClearance = async () =>{
                      marginTop: 10,
                 }}>
                     <TextInput 
+                    editable={user?.editable === true ? true: false}
+                    selectTextOnFocus={user?.editable === true ? true : false}
                     value={inputValues?.phone}
                     onChangeText={(text)=>handleInputChange('phone', text)}
                     style={{
@@ -308,8 +387,31 @@ const handleSubmitClearance = async () =>{
                         paddingVertical: 10,
                         width:"100%",
                     }}
-                     placeholder='Phone'
+                    placeholderTextColor={user?.editable === true ? "#000" : ""}
+                     placeholder={user?.phone ? user?.phone : 'Phone'}
                      keyboardType='phone-pad'
+                    />
+                </View>
+
+                {/* GENDER */}
+                <View style={{
+                    backgroundColor:'#E5E4E2', 
+                     borderRadius: 5, 
+                     marginTop: 10,
+                }}>
+                    <TextInput
+                    editable={user?.editable === true ? true:  false}
+                    selectTextOnFocus={user?.editable ? true : false}
+                    value={inputValues?.gender}
+                    onChangeText={(text)=>handleInputChange('gender', text)} 
+                    style={{
+                        paddingHorizontal: 15,
+                        paddingVertical: 10,
+                        width:"100%",
+                    }}
+                     placeholder={user?.gender ? user?.gender : 'e.g. Male or Female'}
+                     placeholderTextColor={user?.editable === true ? "#000" : ""}
+                     keyboardType="default"
                     />
                 </View>
 
@@ -320,8 +422,8 @@ const handleSubmitClearance = async () =>{
                      marginTop: 10,
                 }}>
                     <TextInput
-                    editable={user?.country ? false: true}
-                    selectTextOnFocus={user?.country ? false : true}
+                    editable={user?.editable === true ? true:  false}
+                    selectTextOnFocus={user?.editable ? true : false}
                     value={inputValues?.country}
                     onChangeText={(text)=>handleInputChange('country', text)} 
                     style={{
@@ -330,7 +432,7 @@ const handleSubmitClearance = async () =>{
                         width:"100%",
                     }}
                      placeholder={user?.country ? user?.country : 'Country'}
-                     placeholderTextColor={user?.country ? "#000" : ""}
+                     placeholderTextColor={user?.editable === true ? "#000" : ""}
                      keyboardType="default"
                     />
                 </View>
@@ -342,8 +444,8 @@ const handleSubmitClearance = async () =>{
                      marginTop: 10,
                 }}>
                     <TextInput
-                    editable={user?.state ? false: true}
-                    selectTextOnFocus={user?.state ? false : true}
+                    editable={user?.editable === true ? true:  false}
+                    selectTextOnFocus={user?.editable ? true : false}
                     value={inputValues?.state}
                     onChangeText={(text)=>handleInputChange('state', text)} 
                     style={{
@@ -352,7 +454,7 @@ const handleSubmitClearance = async () =>{
                         width:"100%",
                     }}
                      placeholder={user?.state ? user?.state : 'State/City'}
-                     placeholderTextColor={user?.state ? "#000" : ""}
+                     placeholderTextColor={user?.editable ? "#000" : ""}
                      keyboardType="default"
                     />
                 </View>
@@ -365,6 +467,8 @@ const handleSubmitClearance = async () =>{
                      marginTop: 10,
                 }}>
                     <TextInput
+                    editable={user?.editable === true ? true:  false}
+                    selectTextOnFocus={user?.editable ? true : false}
                     value={inputValues?.qualification}
                     onChangeText={(text)=>handleInputChange('qualification', text)} 
                     style={{
@@ -372,7 +476,8 @@ const handleSubmitClearance = async () =>{
                         paddingVertical: 10,
                         width:"100%",
                     }}
-                     placeholder='Enter Higest Qualification'
+                    placeholderTextColor={user?.editable ? "#000" : ""}
+                     placeholder={user?.qualification ? user?.qualification : 'Enter Higest Qualification'}
                      keyboardType="default"
                     />
                 </View>
@@ -400,7 +505,18 @@ const handleSubmitClearance = async () =>{
                 
                 <View style={{flexDirection:'row', gap:10, alignItems:'center',justifyContent:'space-between'}}>
                 <Text style={{color:'#c60069', fontSize: 10,}}>Tap to upload.</Text>
-                {uploadOne && <Text style={{color:'#c60069', fontSize: 10,}}>Uploaded File: {uploadOne?.name} </Text>}
+                
+                {!isLoadingFile && user?.yearOneDocumentUpload && <Text style={{color:'limegreen', fontSize: 12, fontWeight:'600'}}>
+                Change previous documents.
+                </Text>}
+
+                {isLoadingFile && !uploadOne && <Text style={{color:'limegreen', fontSize: 12, fontWeight:'600'}}>
+                    Please wait document uploading...
+                </Text>}
+
+                {!isLoadingFile && uploadOne && <Text style={{color:'limegreen', fontSize: 12, fontWeight:'600'}}>
+                    Upload completed.
+                </Text>}
                 </View>
             </Pressable>
 
@@ -416,7 +532,18 @@ const handleSubmitClearance = async () =>{
                 
                 <View style={{flexDirection:'row', gap:10, alignItems:'center',justifyContent:'space-between'}}>
                 <Text style={{color:'#c60069', fontSize: 10,}}>Tap to upload.</Text>
-                {uploadTwo && <Text style={{color:'#c60069', fontSize: 10,}}>Uploaded File: {uploadTwo?.name} </Text>}
+                
+                {isLoadingFile && !uploadTwo && <Text style={{color:'limegreen', fontSize: 12, fontWeight:'600'}}>
+                    Please wait document uploading...
+                </Text>}
+
+                {!isLoadingFile && uploadTwo && <Text style={{color:'limegreen', fontSize: 12, fontWeight:'600'}}>
+                    Upload completed.
+                </Text>}
+
+                {!isLoadingFile && user?.yearTwoDocumentUpload && <Text style={{color:'limegreen', fontSize: 12, fontWeight:'600'}}>
+                Change previous documents.
+                </Text>}
                 </View>
             </Pressable>
 
@@ -432,7 +559,18 @@ const handleSubmitClearance = async () =>{
 
                 <View style={{flexDirection:'row', gap:10, alignItems:'center',justifyContent:'space-between'}}>
                 <Text style={{color:'#c60069', fontSize: 10,}}>Tap to upload.</Text>
-                {uploadThree && <Text style={{color:'#c60069', fontSize: 10,}}>Uploaded File: {uploadThree?.name} </Text>}
+                
+                {isLoadingFile && !uploadThree && <Text style={{color:'limegreen', fontSize: 12, fontWeight:'600'}}>
+                    Please wait document uploading...
+                </Text>}
+
+                {!isLoadingFile && uploadThree && <Text style={{color:'limegreen', fontSize: 12, fontWeight:'600'}}>
+                    Upload completed.
+                </Text>}
+
+                {!isLoadingFile && user?.yearThreeDocumentUpload && <Text style={{color:'limegreen', fontSize: 12, fontWeight:'600'}}>
+                Change previous documents.
+                </Text>}
                 </View>
 
             </Pressable>
@@ -449,13 +587,29 @@ const handleSubmitClearance = async () =>{
                 
                 <View style={{flexDirection:'row', gap:10, alignItems:'center',justifyContent:'space-between'}}>
                 <Text style={{color:'#c60069', fontSize: 10,}}>Tap to upload.</Text>
-                {uploadFour && <Text style={{color:'#c60069', fontSize: 10,}}>Uploaded File: {uploadFour?.name} </Text>}
+                {isLoadingFile && !uploadFour && <Text style={{color:'limegreen', fontSize: 12, fontWeight:'600'}}>
+                    Please wait document uploading...
+                </Text>}
+
+                {!isLoadingFile && uploadFour && <Text style={{color:'limegreen', fontSize: 12, fontWeight:'600'}}>
+                    Upload completed.
+                </Text>}
+
+                {!isLoadingFile && user?.yearFourDocumentUpload && <Text style={{color:'limegreen', fontSize: 12, fontWeight:'600'}}>
+                Change previous documents.
+                </Text>}
                 </View>
 
             </Pressable>
             </View>
 
-            <Text style={{color:'#c60069', fontSize: 10, marginTop: 10}}>NOTE: ALL RECEIPTS SHOULD BE IN ONE PDF FILE FOR EACH YEAR.</Text>
+            <Text style={{color:'#c60069', fontSize: 10, marginTop: 10}}>
+                NOTE: ALL RECEIPTS SHOULD BE IN ONE PDF FILE FOR EACH YEAR.
+            </Text>
+            <Text style={{color:'#c60069', fontSize: 10, marginTop: 2}}>
+                NOTE: YOU CAN KEEP UPDATING YOUR INFORMATIONS UNTIL IS APPROVED.
+            </Text>
+
             </View>
 
                 {/* SUBMIT BUTTON */}
